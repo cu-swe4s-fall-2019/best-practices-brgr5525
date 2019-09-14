@@ -1,19 +1,75 @@
-import sys, math
+"""Performs various operations
 
-file_name = sys.argv[1]
-col_num = int(sys.argv[2])
+    * main - Returns the mean and standard deviation of desired
+             column from file
+"""
+import sys
+import math
+import argparse
 
-f = open(file_name, 'r')
 
-V = []
+def main(file_name, column_num):
+    """Compute the mean and std dev of a column of numbers.
 
-for l in f:
-    A = [int(x) for x in l.split()]
-    V.append(A[col_num])
+    Parameters
+    __________
+    file_name : name of file
+                Non empty file of tab-separated integers.
+    column_num : int
+                 Number of column whose mean and stdev is desired.
 
-mean = sum(V)/len(V)
+    Returns
+    _______
+    none
+        Prints the mean and standard dev of desired coulumn.
+    """
 
-stdev = math.sqrt(sum([(mean-x)**2 for x in V]) / len(V))
+    col_num = int(column_num)
 
-print('mean:', mean)
-print('stdev:', stdev)
+    try:
+        f = open(file_name, 'r')
+    except FileNotFoundError:
+        print('Could not find file.')
+        sys.exit(1)
+    except Exception:
+        print('File could not be opened properly.')
+        sys.exit(1)
+
+    V = []
+
+    for L in f:
+        try:
+            A = [int(x) for x in L.split('\t')]
+        except ValueError:
+            L = L[3:]
+            A = [int(x) for x in L.split('\t')]
+        except Exception:
+            print('File not formatted correctly!')
+            sys.exit(1)
+        V.append(A[col_num])
+
+    mean = sum(V) / len(V)
+
+    stdev = math.sqrt(sum([(mean-x)**2 for x in V]) / len(V))
+
+    print('mean:', mean)
+    print('stdev:', stdev)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+                description='Input file name and column number',
+                prog='get_column_stats')
+
+    parser.add_argument('--file_name',
+                        type=str,
+                        help='Name of the file',
+                        required=True)
+
+    parser.add_argument('--col_num',
+                        type=str,
+                        help='The column number',
+                        required=True)
+
+    args = parser.parse_args()
+    main(args.file_name, args.col_num)
