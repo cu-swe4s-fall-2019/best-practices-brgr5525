@@ -26,7 +26,14 @@ def main(file_name, column_num):
 
     col_num = int(column_num)
 
-    f = open(file_name, 'r')
+    try:
+        f = open(file_name, 'r')
+    except FileNotFoundError:
+        print('Could not find file.')
+        sys.exit(1)
+    except Exception:
+        print('File could not be opened properly.')
+        sys.exit(1)
 
     V = []
 
@@ -36,6 +43,9 @@ def main(file_name, column_num):
         except ValueError:
             L = L[3:]
             A = [int(x) for x in L.split('\t')]
+        except Exception:
+            print('File not formatted correctly!')
+            sys.exit(1)
         V.append(A[col_num])
 
     mean = sum(V) / len(V)
