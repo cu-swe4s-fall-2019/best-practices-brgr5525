@@ -8,6 +8,48 @@ import math
 import argparse
 
 
+def list_mean(L):
+    """Compute the mean of a list of numbers.
+
+    Parameters
+    __________
+    L : list of numbers
+
+    Returns
+    _______
+    mean of numbers
+    """
+    if L is None:
+        raise TypeError('List is of incorrect type.')
+
+    if len(L) == 0:
+        raise ZeroDivisionError('Divide by zero. List may be empty.')
+
+    print('here')
+    return sum(L) / len(L)
+
+
+def stdev(L):
+    """Compute the standard deviation of a list of numbers.
+
+    Parameters
+    __________
+    V : list of numbers
+
+    Returns
+    _______
+    standard deviation of V based on mean
+    """
+    if L is None:
+        raise TypeError('List is of inccorect type.')
+
+    if len(L) == 0:
+        raise ZeroDivisionError('Divide by zero.')
+
+    m = list_mean(L)
+    return math.sqrt(sum([(m-x)**2 for x in L]) / len(L))
+
+
 def main(file_name, column_num):
     """Compute the mean and std dev of a column of numbers.
 
@@ -29,7 +71,7 @@ def main(file_name, column_num):
     try:
         f = open(file_name, 'r')
     except FileNotFoundError:
-        print('Could not find file.')
+        print('File not found.')
         sys.exit(1)
     except Exception:
         print('File could not be opened properly.')
@@ -40,20 +82,26 @@ def main(file_name, column_num):
     for L in f:
         try:
             A = [int(x) for x in L.split('\t')]
+            V.append(int(A[col_num]))
         except ValueError:
-            L = L[3:]
-            A = [int(x) for x in L.split('\t')]
-        except Exception:
-            print('File not formatted correctly!')
+            print('File contains a non integer character!')
             sys.exit(1)
-        V.append(A[col_num])
+        except IndexError:
+            print('Column number is out of range!')
+            sys.exit(1)
 
-    mean = sum(V) / len(V)
-
-    stdev = math.sqrt(sum([(mean-x)**2 for x in V]) / len(V))
+    try:
+        mean = list_mean(V)
+        std = stdev(V)
+    except TypeError:
+        print('Input was of the incorrect type.')
+        sys.exit(1)
+    except ZeroDivisionError:
+        print('Divide by zero! File may be empty.')
+        sys.exit(1)
 
     print('mean:', mean)
-    print('stdev:', stdev)
+    print('stdev:', std)
 
 
 if __name__ == '__main__':
@@ -72,4 +120,5 @@ if __name__ == '__main__':
                         required=True)
 
     args = parser.parse_args()
+
     main(args.file_name, args.col_num)
